@@ -1,12 +1,28 @@
 import json
+import os
 from typing import List, Dict
 
 import faiss
 import numpy as np
 
+from storage.supabase_s3 import download_file
+
+# Các object key cố định trên S3 (phải khớp với vector_store.py)
+S3_INDEX_KEY = "storage/faiss.index"
+S3_METADATA_KEY = "storage/metadata.json"
+
 
 class Retriever:
     def __init__(self, index_path: str, metadata_path: str):
+        # Nếu chưa có file local thì download từ S3
+        if not os.path.exists(index_path):
+            print("[Retriever] Không tìm thấy index cục bộ, đang tải từ S3...")
+            download_file(S3_INDEX_KEY, index_path)
+
+        if not os.path.exists(metadata_path):
+            print("[Retriever] Không tìm thấy metadata cục bộ, đang tải từ S3...")
+            download_file(S3_METADATA_KEY, metadata_path)
+
         self.index = faiss.read_index(index_path)
 
         with open(metadata_path, "r", encoding="utf-8") as f:

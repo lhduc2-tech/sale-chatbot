@@ -1,0 +1,26 @@
+# ── PDF Processing ─────────────────────────────────────────────────────────
+pdfplumber
+
+# ── Embeddings ─────────────────────────────────────────────────────────────
+sentence-transformers
+
+# ── Vector Store ───────────────────────────────────────────────────────────
+faiss-cpu
+numpy
+
+# ── LLM (Google Gemini) ────────────────────────────────────────────────────
+google-generativeai
+
+# ── API (FastAPI) ──────────────────────────────────────────────────────────
+fastapi
+uvicorn[standard]
+pydantic
+
+# ── UI (Streamlit) ─────────────────────────────────────────────────────────
+streamlit
+
+# ── Environment Variables ──────────────────────────────────────────────────
+python-dotenv
+
+# ── Cloud Storage (Supabase S3-compatible) ─────────────────────────────────
+boto3
