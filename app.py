@@ -19,8 +19,19 @@ st.set_page_config(page_title="Sale Chatbot", page_icon="🤖", layout="centered
 
 @st.cache_resource(hash_funcs={str: lambda x: x})
 def load_pipeline(embed_model: str = EMBED_MODEL):
+    # Nếu chưa có file local, thử download từ S3
+    if not os.path.exists(INDEX_PATH) or not os.path.exists(METADATA_PATH):
+        try:
+            from storage.supabase_s3 import download_file
+            download_file("storage/faiss.index", INDEX_PATH)
+            download_file("storage/metadata.json", METADATA_PATH)
+        except Exception as e:
+            st.warning(f"Không thể tải index từ S3: {e}")
+
+    # Nếu vẫn không có sau khi thử download thì dừng
     if not os.path.exists(INDEX_PATH) or not os.path.exists(METADATA_PATH):
         return None, None, None, None
+
     return (
         QueryEmbedder(model_name=EMBED_MODEL),
         Retriever(INDEX_PATH, METADATA_PATH),
