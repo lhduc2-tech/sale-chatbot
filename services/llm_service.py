@@ -12,9 +12,16 @@ class LLMService:
 
         genai.configure(api_key=api_key)
         self.model = genai.GenerativeModel(model_name)
+        self.generation_config = genai.GenerationConfig(
+            temperature=0.2,       # Thấp --> bám sát tài liệu, ít hallucination
+            max_output_tokens=1024,
+        )
 
     def generate(self, prompt: str) -> str:
-        response = self.model.generate_content(prompt)
+        response = self.model.generate_content(
+            prompt,
+            generation_config=self.generation_config,
+        )
 
         if response and response.text:
             return response.text.strip()

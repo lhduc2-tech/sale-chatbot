@@ -12,13 +12,13 @@ load_dotenv()
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 INDEX_PATH = os.path.join(BASE_DIR, "storage", "faiss.index")
 METADATA_PATH = os.path.join(BASE_DIR, "storage", "metadata.json")
-EMBED_MODEL = "all-MiniLM-L6-v2"
+EMBED_MODEL = "paraphrase-multilingual-MiniLM-L12-v2"
 
 st.set_page_config(page_title="Sale Chatbot", page_icon="🤖", layout="centered")
 
 
-@st.cache_resource
-def load_pipeline():
+@st.cache_resource(hash_funcs={str: lambda x: x})
+def load_pipeline(embed_model: str = EMBED_MODEL):
     if not os.path.exists(INDEX_PATH) or not os.path.exists(METADATA_PATH):
         return None, None, None, None
     return (
@@ -29,7 +29,7 @@ def load_pipeline():
     )
 
 
-embedder, retriever, prompt_builder, llm = load_pipeline()
+embedder, retriever, prompt_builder, llm = load_pipeline(EMBED_MODEL)
 
 st.title("🤖 Sale Chatbot")
 

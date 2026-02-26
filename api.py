@@ -17,7 +17,7 @@ load_dotenv()
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 INDEX_PATH = os.path.join(BASE_DIR, "storage", "faiss.index")
 METADATA_PATH = os.path.join(BASE_DIR, "storage", "metadata.json")
-EMBED_MODEL = "all-MiniLM-L6-v2"
+EMBED_MODEL = "paraphrase-multilingual-MiniLM-L12-v2"
 
 
 # ── Lifespan (khởi tạo một lần khi server start) ───────────────────────────
@@ -84,7 +84,7 @@ def chat(req: ChatRequest):
     query_vector = app.state.embedder.embed(req.question)
 
     # 2. Tìm các đoạn văn bản liên quan
-    docs = app.state.retriever.search(query_vector, top_k=20)
+    docs = app.state.retriever.search(query_vector, top_k=3)
 
     if not docs:
         return ChatResponse(

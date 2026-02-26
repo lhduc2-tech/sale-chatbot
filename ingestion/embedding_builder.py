@@ -3,7 +3,7 @@ from sentence_transformers import SentenceTransformer
 
 
 class EmbeddingBuilder:
-    def __init__(self, model_name: str = "all-MiniLM-L6-v2"):
+    def __init__(self, model_name: str = "paraphrase-multilingual-MiniLM-L12-v2"):
         self.model = SentenceTransformer(model_name)
 
     def build_embeddings(self, chunks: List[Dict]) -> List[Dict]:
