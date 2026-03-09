@@ -4,6 +4,7 @@ from contextlib import asynccontextmanager
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 
 from retrieval.query_embedder import QueryEmbedder
@@ -101,3 +102,34 @@ def chat(req: ChatRequest):
     sources = [SourceItem(content=d.get("content", ""), source=d.get("source", "")) for d in docs]
 
     return ChatResponse(answer=answer, sources=sources)
+
+
+@app.post("/chat/stream", tags=["Chatbot"])
+def chat_stream(req: ChatRequest):
+    """
+    Streaming version: trả lời theo từng chunk thay vì toàn bộ một lần.
+    Client nhận dữ liệu dạng text/event-stream.
+    """
+    if not req.question.strip():
+        raise HTTPException(status_code=400, detail="Câu hỏi không được để trống.")
+
+    # 1. Embed câu hỏi
+    query_vector = app.state.embedder.embed(req.question)
+
+    # 2. Tìm các đoạn văn bản liên quan
+    docs = app.state.retriever.search(query_vector, top_k=3)
+
+    if not docs:
+        def no_result():
+            yield "Không tìm thấy thông tin liên quan trong tài liệu."
+        return StreamingResponse(no_result(), media_type="text/plain")
+
+    # 3. Xây dựng prompt
+    prompt = app.state.prompt_builder.build_prompt(req.question, docs)
+
+    # 4. Stream từng chunk từ LLM
+    return StreamingResponse(
+        app.state.llm.generate_stream(prompt),
+        media_type="text/plain",
+    )
+

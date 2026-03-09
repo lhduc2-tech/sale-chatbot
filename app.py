@@ -61,16 +61,16 @@ if question := st.chat_input("Nhập câu hỏi của bạn..."):
         st.markdown(question)
 
     with st.chat_message("assistant"):
-        with st.spinner("Đang trả lời..."):
-            query_vector = embedder.embed(question)
-            docs = retriever.search(query_vector, top_k=5)
+        query_vector = embedder.embed(question)
+        docs = retriever.search(query_vector, top_k=5)
 
-            if not docs:
-                answer = "❌ Không tìm thấy thông tin liên quan trong tài liệu."
-            else:
-                prompt = prompt_builder.build_prompt(question, docs)
-                answer = llm.generate(prompt)
-
-        st.markdown(answer)
+        if not docs:
+            answer = "❌ Không tìm thấy thông tin liên quan trong tài liệu."
+            st.markdown(answer)
+        else:
+            prompt = prompt_builder.build_prompt(question, docs)
+            # st.write_stream tự hiển thị từng chunk khi Gemini sinh ra
+            answer = st.write_stream(llm.generate_stream(prompt))
 
     st.session_state.messages.append({"role": "assistant", "content": answer})
+

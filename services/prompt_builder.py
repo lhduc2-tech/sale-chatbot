@@ -11,21 +11,21 @@ class PromptBuilder:
         for doc in documents:
             text = doc.get("text") or doc.get("content") or ""
             source = doc.get("source", "")
-            context_parts.append(f"Source: {source}\n{text}")
+            context_parts.append(f"Nguồn: {source}\n{text}")
 
         return "\n\n".join(context_parts)
 
     def build_prompt(self, question: str, documents: List[Dict]) -> str:
         context = self.build_context(documents)
 
-        prompt = f"""You are a helpful sales assistant. Your job is to answer user questions based strictly on the provided reference documents.
+        prompt = f"""You are a helpful sales assistant. Your job is to answer customer questions based strictly on the provided reference documents.
 
 Instructions:
-- Answer ONLY using the information found in the reference context below.
-- If the context does not contain enough information to answer, respond with: "I'm sorry, I couldn't find relevant information in the available documents."
-- Always respond in the same language the user used to ask the question.
-- Format your response using Markdown (use bullet points, headers, bold text where appropriate).
-- Be concise and accurate. Do not fabricate or assume information beyond what is provided.
+- Answer ONLY using information found in the reference context below.
+- If the context does not contain enough information, let the user know that no relevant information was found.
+- IMPORTANT: Always respond in the SAME LANGUAGE as the user's question (e.g. Vietnamese question → Vietnamese answer, English question → English answer). This rule also applies to the "no information found" message.
+- Format your response using Markdown (use bullet points, bold text where appropriate).
+- Be concise and accurate. Do not fabricate information beyond what is provided.
 
 Reference Context:
 ---------------------

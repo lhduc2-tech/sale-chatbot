@@ -1,4 +1,5 @@
 import os
+from typing import Iterator
 from dotenv import load_dotenv
 import google.generativeai as genai
 
@@ -27,3 +28,14 @@ class LLMService:
             return response.text.strip()
 
         return "Không nhận được phản hồi từ mô hình."
+
+    def generate_stream(self, prompt: str) -> Iterator[str]:
+        """Trả về từng chunk text theo thời gian thực (streaming)."""
+        response = self.model.generate_content(
+            prompt,
+            generation_config=self.generation_config,
+            stream=True,
+        )
+        for chunk in response:
+            if chunk.text:
+                yield chunk.text
