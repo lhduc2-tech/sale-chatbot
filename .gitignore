@@ -1,6 +1,7 @@
 .env
 
 /data/output
+data/*.pdf
 
 venv/
 __pycache__/

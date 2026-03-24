@@ -9,7 +9,7 @@ jobs:
   sync-to-hub:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
           lfs: true
@@ -17,4 +17,22 @@ jobs:
       - name: Push code to Hugging Face
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
-        run: git push --force https://tinytqa:$HF_TOKEN@huggingface.co/spaces/tinytqa/sale_chatbot main
+        run: |
+          # 1. Erase the messy GitHub history so Hugging Face doesn't see old PDF errors
+          rm -rf .git
+          
+          # 2. Create a brand new, clean history specifically for deployment
+          git init
+          git checkout -b main
+          
+          # 3. Automatically turn on Git LFS for your PDF files
+          git lfs install
+          git lfs track "*.pdf"
+          git add .gitattributes
+          
+          # 4. Package all files and force-push them to Hugging Face
+          git config user.email "bot@github.actions"
+          git config user.name "GitHub Actions"
+          git add .
+          git commit -m "Clean Deploy from GitHub Actions"
+          git push --force https://tinytqa:$HF_TOKEN@huggingface.co/spaces/tinytqa/sale_chatbot main
