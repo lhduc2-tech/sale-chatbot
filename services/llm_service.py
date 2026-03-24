@@ -15,7 +15,7 @@ class LLMService:
         self.model = genai.GenerativeModel(model_name)
         self.generation_config = genai.GenerationConfig(
             temperature=0.2,       # Thấp --> bám sát tài liệu, ít hallucination
-            max_output_tokens=1024,
+            max_output_tokens=4096,
         )
 
     def generate(self, prompt: str) -> str:
