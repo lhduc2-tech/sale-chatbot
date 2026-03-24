@@ -1,3 +1,12 @@
+---
+title: Sale Chatbot
+emoji: 💬
+colorFrom: blue
+colorTo: indigo
+sdk: docker
+pinned: false
+---
+
 # 🤖 Sale Chatbot – RAG-based Chatbot
 
 Chatbot hỗ trợ bán hàng sử dụng kiến trúc **RAG (Retrieval-Augmented Generation)**: đọc tài liệu PDF nội bộ, lập chỉ mục vector, và trả lời câu hỏi bằng **Google Gemini**.
