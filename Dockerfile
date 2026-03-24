@@ -16,7 +16,5 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy ALL of your folders and files into the server
 COPY . .
 
-EXPOSE 8501
-
-# Tell the server to run YOUR app.py file
-ENTRYPOINT ["streamlit", "run", "app.py", "--server.port=8501", "--server.address=0.0.0.0"]
+EXPOSE 7860
+ENTRYPOINT ["streamlit", "run", "app.py", "--server.port=7860", "--server.address=0.0.0.0"]
