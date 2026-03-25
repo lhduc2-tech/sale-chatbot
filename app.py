@@ -162,7 +162,7 @@ if question := st.chat_input("Nhập câu hỏi của bạn..."):
 
     with st.chat_message("assistant"):
         query_vector = embedder.embed(question)
-        docs = retriever.search(query_vector, top_k=5)
+        docs = retriever.search(query_vector, top_k=3)
 
         if not docs:
             answer = "❌ Không tìm thấy thông tin liên quan trong tài liệu."
