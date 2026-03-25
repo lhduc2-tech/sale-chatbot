@@ -14,7 +14,7 @@ INDEX_PATH = os.path.join(BASE_DIR, "storage", "faiss.index")
 METADATA_PATH = os.path.join(BASE_DIR, "storage", "metadata.json")
 EMBED_MODEL = "paraphrase-multilingual-MiniLM-L12-v2"
 
-st.set_page_config(page_title="Sale Chatbot", page_icon="🤖", layout="centered")
+st.set_page_config(page_title="Chatbot Nhí Nhảnh", page_icon="🤖", layout="centered")
 
 st.markdown("""
     <style>
@@ -162,7 +162,7 @@ if question := st.chat_input("Nhập câu hỏi của bạn..."):
 
     with st.chat_message("assistant"):
         query_vector = embedder.embed(question)
-        docs = retriever.search(query_vector, top_k=3)
+        docs = retriever.search(query_vector, top_k=5)
 
         if not docs:
             answer = "❌ Không tìm thấy thông tin liên quan trong tài liệu."

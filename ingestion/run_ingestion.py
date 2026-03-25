@@ -45,8 +45,8 @@ if __name__ == "__main__":
     parser.add_argument(
         "--source",
         choices=["local", "s3"],
-        default="local",
-        help="Nguồn PDF: 'local' (mặc định) hoặc 's3' (download từ Supabase)",
+        default="s3",
+        help="Nguồn PDF: 's3' (mặc định, fallback về local) hoặc 'local'",
     )
     args = parser.parse_args()
     run(use_s3=(args.source == "s3"))

@@ -1,6 +1,10 @@
 # ── PDF Processing ─────────────────────────────────────────────────────────
 pdfplumber
 
+# ── OCR Post-Processing ─────────────────────────────────────────────────────
+ftfy            # Fix Unicode encoding errors in OCR output
+underthesea     # Vietnamese NLP: text normalization
+
 # ── Embeddings ─────────────────────────────────────────────────────────────
 sentence-transformers
 
