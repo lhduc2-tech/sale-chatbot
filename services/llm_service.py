@@ -37,5 +37,9 @@ class LLMService:
             stream=True,
         )
         for chunk in response:
-            if chunk.text:
-                yield chunk.text
+            try:
+                # Cố gắng lấy chữ từ tin nhắn
+                if chunk.text:
+                    yield chunk.text
+            except ValueError:
+                pass
