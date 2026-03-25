@@ -2,7 +2,7 @@ from typing import List, Dict
 
 
 class TextChunker:
-    def __init__(self, chunk_size: int = 1500, overlap: int = 100):
+    def __init__(self, chunk_size: int = 500, overlap: int = 100):
         if overlap >= chunk_size:
             raise ValueError(f"overlap ({overlap}) phải nhỏ hơn chunk_size ({chunk_size})")
         self.chunk_size = chunk_size
