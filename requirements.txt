@@ -28,3 +28,6 @@ python-dotenv
 
 # ── Cloud Storage (Supabase S3-compatible) ─────────────────────────────────
 boto3
+
+# ── Database Toolkit (PostgreSQL Direct Connection) ────────────────────────
+psycopg2-binary
