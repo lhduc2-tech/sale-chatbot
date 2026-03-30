@@ -44,4 +44,15 @@ class Retriever:
                 result["score"] = float(distances[0][i])
                 results.append(result)
 
+        # --- DEBUG: In ra các chunk được trả về ---
+        print("\n" + "="*50)
+        print(f"[DEBUG] RETRIEVED {len(results)} CHUNKS")
+        print("="*50)
+        for i, res in enumerate(results):
+            print(f"--- Chunk {i+1} (Score: {res.get('score', 'N/A')}) ---")
+            print(res.get("content", ""))
+            print("-" * 50)
+        print("\n")
+        # ------------------------------------------
+
         return results
