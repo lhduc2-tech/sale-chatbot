@@ -36,8 +36,13 @@ def check_product_stock(product_name: str) -> str:
         
         # Security Filter: Giới hạn theo shop_id nếu tồn tại
         if shop_id:
-            query += " AND p.shop_id = %s"
-            args.append(shop_id)
+            import uuid
+            try:
+                uuid.UUID(str(shop_id))
+                query += " AND p.shop_id = %s"
+                args.append(shop_id)
+            except ValueError:
+                return f"Lỗi: shop_id '{shop_id}' truyền vào không phải là định dạng UUID hợp lệ."
             
         query += " GROUP BY p.name, p.code"
         
