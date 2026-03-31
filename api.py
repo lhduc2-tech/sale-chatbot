@@ -79,19 +79,23 @@ def health():
     return {"status": "ok"}
 
 
+from fastapi import FastAPI, HTTPException, Request
+
 @app.post("/chat", response_model=ChatResponse, tags=["Chatbot"])
-def chat(req: ChatRequest):
+def chat(request: Request, req: ChatRequest):
     """
     Nhận câu hỏi, tìm tài liệu liên quan, sinh câu trả lời bằng Gemini.
     """
     if not req.question.strip():
         raise HTTPException(status_code=400, detail="Câu hỏi không được để trống.")
 
-    # Phân quyền: Lấy shop_id từ token nếu có, nếu không lấy từ shop_id gửi lên
+    # Phân quyền: Lấy shop_id từ token Body hoặc Authorization header
     shop_id = req.shop_id
-    if req.token:
+    raw_token = req.token or request.headers.get("Authorization")
+    
+    if raw_token:
         from core.security_context import decode_jwt_shop_id
-        extracted_id = decode_jwt_shop_id(req.token)
+        extracted_id = decode_jwt_shop_id(raw_token)
         if extracted_id:
             shop_id = extracted_id
 
@@ -123,7 +127,7 @@ def chat(req: ChatRequest):
 
 
 @app.post("/chat/stream", tags=["Chatbot"])
-def chat_stream(req: ChatRequest):
+def chat_stream(request: Request, req: ChatRequest):
     """
     Streaming version: trả lời theo từng chunk thay vì toàn bộ một lần.
     Client nhận dữ liệu dạng text/event-stream.
@@ -131,11 +135,13 @@ def chat_stream(req: ChatRequest):
     if not req.question.strip():
         raise HTTPException(status_code=400, detail="Câu hỏi không được để trống.")
 
-    # Phân quyền: Lấy shop_id từ token nếu có
+    # Phân quyền: Lấy shop_id từ token Body hoặc Authorization header
     shop_id = req.shop_id
-    if req.token:
+    raw_token = req.token or request.headers.get("Authorization")
+    
+    if raw_token:
         from core.security_context import decode_jwt_shop_id
-        extracted_id = decode_jwt_shop_id(req.token)
+        extracted_id = decode_jwt_shop_id(raw_token)
         if extracted_id:
             shop_id = extracted_id
 
