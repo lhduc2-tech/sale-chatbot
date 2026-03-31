@@ -17,7 +17,8 @@ class TextChunker:
             source = doc.get("source", "")
             
             # Phân tách văn bản dựa trên các Header Markdown (bắt đầu bằng "#")
-            sections = re.split(r'\n(?=#+\s)', content)
+            # prepend \n to correctly split the first line if it's a header
+            sections = re.split(r'\n(?=#+\s)', "\n" + content)
 
             # Gom nhóm các section nhỏ liền nhau để tránh bị vỡ vụn ngữ cảnh 
             # (VD: # Tạo đơn hàng, # Bước 1, # Bước 2... cần được nằm chung 1 file nếu đủ chỗ)
@@ -27,6 +28,21 @@ class TextChunker:
             for section in sections:
                 section = section.strip()
                 if not section:
+                    continue
+                    
+                # Kiểm tra section mới có phải là tiêu đề chính hay không (để tách chunk độc lập)
+                header_match = re.search(r'^(#+)\s+(.*)', section)
+                is_sub_section = False
+                if header_match:
+                    h_text = header_match.group(2).lower()
+                    if h_text.startswith("bước") or h_text.startswith("step"):
+                        is_sub_section = True
+                        
+                # Nếu cụm hiện tại đang chứa 1 topic, mà section mới cũng là 1 topic độc lập (VD: Xem cấu hình, Tạo mới)
+                # thì ta buộc phải ngắt ra để truy xuất chính xác hơn, không nên nhồi chung dù còn chỗ.
+                if current_group and header_match and not is_sub_section:
+                    grouped_sections.append(current_group.strip())
+                    current_group = section
                     continue
                     
                 # Nối thêm vào cụm hiện tại nếu chưa vượt ngưỡng
@@ -97,9 +113,8 @@ class TextChunker:
             if end == start:
                 chunk_text = parts[end][:allowance]
                 parts[start] = parts[end][allowance:]
-                continue 
-
-            chunk_text = "".join(parts[start:end])
+            else:
+                chunk_text = "".join(parts[start:end])
             
             if chunk_text.strip():
                 final_content = prefix + chunk_text.strip()
@@ -109,14 +124,20 @@ class TextChunker:
                 })
                 is_first_chunk = False
 
+            if end == start:
+                continue
+
+            if end >= len(parts):
+                break
+
             overlap_len = 0
             next_start = end
             
-            for i in range(end - 1, start - 1, -1):
+            for i in range(end - 1, start, -1):
                 overlap_len += len(parts[i])
-                if overlap_len > self.overlap:
+                if overlap_len >= self.overlap:
+                    next_start = i
                     break
-                next_start = i
             
             start = max(next_start, start + 1)
 
