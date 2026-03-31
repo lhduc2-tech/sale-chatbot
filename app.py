@@ -143,6 +143,22 @@ if embedder is None:
     st.error("⚠️ Chưa có index. Hãy chạy: `python -m ingestion.run_ingestion`")
     st.stop()
 
+# --- LẤY SHOP_ID HOẶC TOKEN TỪ URL ---
+# Nếu dùng iframe, bạn có thể nối thêm ?token=eyJ... hoặc ?shop_id=...
+from core.security_context import current_shop_id, decode_jwt_shop_id
+
+shop_id = st.query_params.get("shop_id")
+token = st.query_params.get("token")
+
+if token:
+    extracted_shop = decode_jwt_shop_id(token)
+    if extracted_shop:
+        shop_id = extracted_shop
+
+if shop_id:
+    current_shop_id.set(shop_id)
+# ---------------------------
+
 if "messages" not in st.session_state:
     st.session_state.messages = []
 

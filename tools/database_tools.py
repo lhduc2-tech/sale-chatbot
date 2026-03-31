@@ -1,6 +1,7 @@
 import os
 import psycopg2
 from psycopg2.extras import RealDictCursor
+from core.security_context import current_shop_id
 
 def check_product_stock(product_name: str) -> str:
     """Tra cứu số lượng tồn kho của một sản phẩm bất kỳ trong cơ sở dữ liệu.
@@ -17,6 +18,8 @@ def check_product_stock(product_name: str) -> str:
 
     # Xóa dấu nháy kép hoặc đơn thừa nếu người dùng lỡ nhập dư trên Render Dashboard
     db_url = db_url.strip('"').strip("'")
+    # Lấy shop_id từ biến ngữ cảnh (được truyền từ api.py hoặc app.py)
+    shop_id = current_shop_id.get()
 
     conn = None
     try:
@@ -34,6 +37,11 @@ def check_product_stock(product_name: str) -> str:
         
         args = [f"%{product_name}%"]
         
+        # Filter theo shop_id nếu user đang đăng nhập
+        if shop_id:
+            query += " AND p.shop_id = %s"
+            args.append(shop_id)
+            
         query += " GROUP BY p.name, p.code"
         
         cursor.execute(query, tuple(args))
@@ -41,7 +49,8 @@ def check_product_stock(product_name: str) -> str:
         data = cursor.fetchall()
         
         if not data:
-            return f"Không tìm thấy sản phẩm nào chứa từ khóa '{product_name}' trong cơ sở dữ liệu."
+            shop_context = f" (thuộc quyền quản lý của cửa hàng {shop_id})" if shop_id else ""
+            return f"Không tìm thấy sản phẩm nào chứa từ khóa '{product_name}' trong cơ sở dữ liệu{shop_context}."
             
         results = []
         for row in data:

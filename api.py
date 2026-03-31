@@ -59,6 +59,7 @@ from core.security_context import current_shop_id
 class ChatRequest(BaseModel):
     question: str
     shop_id: Optional[str] = None
+    token: Optional[str] = None
 
 
 class SourceItem(BaseModel):
@@ -86,8 +87,17 @@ def chat(req: ChatRequest):
     if not req.question.strip():
         raise HTTPException(status_code=400, detail="Câu hỏi không được để trống.")
 
-    # Phân quyền: Đặt biến ngữ cảnh shop_id cho Request hiện tại
-    current_shop_id.set(req.shop_id)
+    # Phân quyền: Lấy shop_id từ token nếu có, nếu không lấy từ shop_id gửi lên
+    shop_id = req.shop_id
+    if req.token:
+        from core.security_context import decode_jwt_shop_id
+        extracted_id = decode_jwt_shop_id(req.token)
+        if extracted_id:
+            shop_id = extracted_id
+
+    # Đặt biến ngữ cảnh shop_id cho Request hiện tại
+    from core.security_context import current_shop_id
+    current_shop_id.set(shop_id)
 
     # 1. Embed câu hỏi
     query_vector = app.state.embedder.embed(req.question)
@@ -121,8 +131,17 @@ def chat_stream(req: ChatRequest):
     if not req.question.strip():
         raise HTTPException(status_code=400, detail="Câu hỏi không được để trống.")
 
-    # Phân quyền: Đặt biến ngữ cảnh shop_id cho Request streaming hiện tại
-    current_shop_id.set(req.shop_id)
+    # Phân quyền: Lấy shop_id từ token nếu có
+    shop_id = req.shop_id
+    if req.token:
+        from core.security_context import decode_jwt_shop_id
+        extracted_id = decode_jwt_shop_id(req.token)
+        if extracted_id:
+            shop_id = extracted_id
+
+    # Đặt biến ngữ cảnh shop_id cho Request streaming hiện tại
+    from core.security_context import current_shop_id
+    current_shop_id.set(shop_id)
 
     # 1. Embed câu hỏi
     query_vector = app.state.embedder.embed(req.question)
