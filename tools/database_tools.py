@@ -13,12 +13,15 @@ def check_product_stock(product_name: str) -> str:
     """
     db_url = os.getenv("DB_URL")
     if not db_url:
-        return "Lỗi: Hệ thống chưa cấu hình biến môi trường DB_URL."
+        return "Lỗi: Hệ thống chưa cấu hình biến môi trường DB_URL trên server (Render/HF)."
+
+    # Xóa dấu nháy kép hoặc đơn thừa nếu người dùng lỡ nhập dư trên Render Dashboard
+    db_url = db_url.strip('"').strip("'")
 
     conn = None
     try:
         # Cắm trực tiếp vào DB PostgreSQL bằng Psycopg2
-        conn = psycopg2.connect(db_url)
+        conn = psycopg2.connect(db_url, connect_timeout=10)
         cursor = conn.cursor(cursor_factory=RealDictCursor)
         
         # Móc nối bảng products và inventories bằng Raw SQL
