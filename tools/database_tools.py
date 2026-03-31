@@ -1,7 +1,6 @@
 import os
 import psycopg2
 from psycopg2.extras import RealDictCursor
-from core.security_context import current_shop_id
 
 def check_product_stock(product_name: str) -> str:
     """Tra cứu số lượng tồn kho của một sản phẩm bất kỳ trong cơ sở dữ liệu.
@@ -15,8 +14,6 @@ def check_product_stock(product_name: str) -> str:
     db_url = os.getenv("DB_URL")
     if not db_url:
         return "Lỗi: Hệ thống chưa cấu hình biến môi trường DB_URL."
-
-    shop_id = current_shop_id.get()
 
     conn = None
     try:
@@ -34,16 +31,6 @@ def check_product_stock(product_name: str) -> str:
         
         args = [f"%{product_name}%"]
         
-        # Security Filter: Giới hạn theo shop_id nếu tồn tại
-        if shop_id:
-            import uuid
-            try:
-                uuid.UUID(str(shop_id))
-                query += " AND p.shop_id = %s"
-                args.append(shop_id)
-            except ValueError:
-                return f"Lỗi: shop_id '{shop_id}' truyền vào không phải là định dạng UUID hợp lệ."
-            
         query += " GROUP BY p.name, p.code"
         
         cursor.execute(query, tuple(args))
